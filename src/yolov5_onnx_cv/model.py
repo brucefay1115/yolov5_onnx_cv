@@ -5,6 +5,7 @@ if 'Windows' in platform.system():
     os.environ['OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS'] = '0'
 import cv2
 import numpy as np
+from yolov5_onnx_cv import datadefine as df
 
 
 class YOLOv5_ONNX_CV:
@@ -70,29 +71,26 @@ class YOLOv5_ONNX_CV:
         box = np.array([left, top, width, height])
         return box
 
-    def _nsm_boxes(self, class_ids, confs, boxes, thres_conf, thres_iou):
-        result_class_ids = []
-        result_confs = []
-        result_boxes = []
-        indexes = cv2.dnn.NMSBoxes(boxes, confs, thres_conf, thres_iou) 
+    def _nsm_boxes(self, ids, confs, boxes):
+        result = []
+        indexes = cv2.dnn.NMSBoxes(boxes, confs, self.conf, self.iou) 
         for i in indexes:
-            result_class_ids.append(class_ids[i])
-            result_confs.append(confs[i])
-            result_boxes.append(boxes[i])
-        return result_class_ids, result_confs, result_boxes
+            id = ids[i]
+            result.append(df.ClassInfo(id, self.class_names[id], confs[i], boxes[i]))
+        return result
 
-    def _wrap_detection(self, output, ratio, dwh, thres_conf, thres_iou):
-        class_ids, confs, boxes = [], [], []
+    def _wrap_detection(self, output, ratio, dwh):
+        ids, confs, boxes = [], [], []
         rows = output.shape[0]
         for r in range(rows):
             row = output[r]
             conf = row[4]
-            if conf >= thres_conf:
-                classes_scores = row[5:]
-                class_id = classes_scores.argmax()
-                if (classes_scores[class_id] >= thres_conf):
+            if conf >= self.conf:
+                scores = row[5:]
+                id = scores.argmax()
+                if (scores[id] >= self.conf):
                     confs.append(conf)
-                    class_ids.append(class_id)
+                    ids.append(id)
                     box = self._xywh_to_box(
                         row[0].item(), 
                         row[1].item(), 
@@ -100,10 +98,10 @@ class YOLOv5_ONNX_CV:
                         row[3].item(), 
                         ratio, dwh)
                     boxes.append(box)
-        return self._nsm_boxes(class_ids, confs, boxes, thres_conf, thres_iou)
+        return self._nsm_boxes(ids, confs, boxes)
 
     def _draw_box(self, img, label, box, color, line_width=3):
-        lw = line_width or max(round(sum(img.shape) / 2 * 0.003), 2)  # line width
+        lw = line_width or max(round(sum(img.shape) / 2 * 0.003), 2)
         p1 = (int(box[0]), int(box[1]))
         p2 = (p1[0] + int(box[2]), p1[1] + int(box[3]))
         cv2.rectangle(img, p1, p2, color, thickness=lw, lineType=cv2.LINE_AA)
@@ -122,12 +120,12 @@ class YOLOv5_ONNX_CV:
 
     def _label_boxes(self, hide_conf):
         img = self.img
-        for (classid, conf, box) in zip(self.class_ids, self.confs, self.boxes):
-            color = self.class_colors[int(classid) % len(self.class_colors)]
-            label = self.class_names[classid]
+        for c_info in self.class_infos:
+            color = self.class_colors[int(c_info.id) % len(self.class_colors)]
+            label = self.class_names[c_info.id]
             if not hide_conf:
-                label += f':{conf:.2f}'
-            self._draw_box(img, label, box, color)
+                label += f':{c_info.conf:.2f}'
+            self._draw_box(img, label, c_info.box, color)
         return img
 
     def show_label_boxes(self, hide_conf=True):
@@ -142,9 +140,5 @@ class YOLOv5_ONNX_CV:
         self.img = input.copy()
         input, ratio, dwh = self._letterbox(input, self.input_size)
         outputs = self._detect(input, self.input_size, self.model)
-        result = (self.class_ids, self.confs, self.boxes) = self._wrap_detection(outputs[0], 
-                                                                                 ratio, 
-                                                                                 dwh, 
-                                                                                 self.conf, 
-                                                                                 self.iou)
-        return result
+        self.class_infos = self._wrap_detection(outputs[0], ratio, dwh)
+        return self.class_infos

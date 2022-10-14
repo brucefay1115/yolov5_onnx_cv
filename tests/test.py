@@ -44,10 +44,13 @@ if __name__ == '__main__':
             print('Open camera fail.')
             break
 
-        class_ids, confs, boxes = model(frame)
-        model.show_label_boxes() 
+        preds = model(frame)
+        # model.show_label_boxes() 
         
         # img = model.get_label_boxes_image()
+
+        # for pred in preds:
+            # print(pred.id, pred.name, pred.conf, pred.box)
 
         # Any key to quit.
         if cv2.waitKey(1) > -1:
