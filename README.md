@@ -4,6 +4,12 @@ If you wanna export dnn for torch to onnx, please refer:
 https://github.com/ultralytics/yolov5
 
 
+Install package
+```
+pip install yolov5-onnx-cv
+```
+
+
 Code example:
 
 ```python
