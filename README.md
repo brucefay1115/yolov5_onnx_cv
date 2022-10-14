@@ -84,3 +84,6 @@ if __name__ == '__main__':
     capture.release()
 
 ```
+
+Demo example:
+![image info](./demo/sample.jpg)
