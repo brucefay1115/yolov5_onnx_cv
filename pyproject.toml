@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "yolov5_onnx_cv"
 version = "0.0.1"
 authors = [
-  { name="BruceYang", email="brucech.yang@adlinktech.com" },
+  { name="BruceYang", email="brucefay1115@gmail.com" },
 ]
 description = "YOLOv5 ONNX example by OpenCV DNN."
 readme = "README.md"
@@ -24,4 +24,4 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/pypa/sampleproject"
+"Homepage" = "https://github.com/brucefay1115/yolov5_onnx_cv"

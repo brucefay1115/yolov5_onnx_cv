@@ -12,7 +12,7 @@ from yolov5_onnx_cv import YOLOv5_ONNX_CV
 import cv2
 
 
-# Just inherit YOLOv5_ONNX_CV and define class_names and class_colors
+# Just inherit YOLOv5_ONNX_CV and define your class_names and class_colors
 class YOLOv5(YOLOv5_ONNX_CV):
 
     # Define coco class names
@@ -53,14 +53,16 @@ if __name__ == '__main__':
     model = YOLOv5('tests/yolov5s.onnx', (640, 640), 0.5)
 
     while True:
-        # Get frame
+        # Get camera frame
         success, frame = capture.read()
         if not success:
             print('Open camera fail.')
             break
 
-        # Get inference output result
-        class_ids, confs, boxes = model(frame)
+        # Inference all of output result
+        preds = model(frame)
+        for pred in preds:
+            print(pred.id, pred.name, pred.conf, pred.box)
 
         # Show labeled box result
         model.show_label_boxes() 

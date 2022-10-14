@@ -45,7 +45,7 @@ if __name__ == '__main__':
             break
 
         preds = model(frame)
-        # model.show_label_boxes() 
+        model.show_label_boxes() 
         
         # img = model.get_label_boxes_image()
 
