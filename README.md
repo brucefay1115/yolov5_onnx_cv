@@ -1,6 +1,6 @@
-YOLOv5 convert ONNX read example by OpenCV DNN.
+YOLOv5-ONNX read example by OpenCV DNN.
 
-If you wanna export dnn for torch to onnx, please refer:
+If you wanna export to onnx format, please refer:
 https://github.com/ultralytics/yolov5
 
 

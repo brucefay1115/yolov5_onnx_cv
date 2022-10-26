@@ -9,11 +9,12 @@ from yolov5_onnx_cv import datadefine as df
 
 
 class YOLOv5_ONNX_CV:
-    def __init__(self, checkpoint, input_size=(640, 640), conf=0.25, iou=0.45, is_cuda=False):
+    def __init__(self, checkpoint, input_size=(640, 640), conf=0.25, iou=0.45, draw_size=3, is_cuda=False):
         assert self.class_colors or self.class_names, 'You must inherit YOLOv5_ONNX_CV and define class_colors and class_names'
         self.input_size = input_size
         self.conf = conf
         self.iou = iou
+        self.draw_size = draw_size
         self.model = self._build_model(checkpoint, is_cuda)
 
     def _build_model(self, checkpoint, is_cuda=False):
@@ -100,7 +101,7 @@ class YOLOv5_ONNX_CV:
                     boxes.append(box)
         return self._nsm_boxes(ids, confs, boxes)
 
-    def _draw_box(self, img, label, box, color, line_width=3):
+    def _draw_box(self, img, label, box, color, line_width):
         lw = line_width or max(round(sum(img.shape) / 2 * 0.003), 2)
         p1 = (int(box[0]), int(box[1]))
         p2 = (p1[0] + int(box[2]), p1[1] + int(box[3]))
@@ -125,7 +126,7 @@ class YOLOv5_ONNX_CV:
             label = self.class_names[c_info.id]
             if not hide_conf:
                 label += f':{c_info.conf:.2f}'
-            self._draw_box(img, label, c_info.box, color)
+            self._draw_box(img, label, c_info.box, color, self.draw_size)
         return img
 
     def show_label_boxes(self, hide_conf=True):
