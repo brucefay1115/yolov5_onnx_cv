@@ -72,7 +72,7 @@ class YOLOv5_ONNX_CV:
         box = np.array([left, top, width, height])
         return box
 
-    def _nsm_boxes(self, ids, confs, boxes):
+    def _nms_boxes(self, ids, confs, boxes):
         result = []
         indexes = cv2.dnn.NMSBoxes(boxes, confs, self.conf, self.iou) 
         for i in indexes:
@@ -100,7 +100,7 @@ class YOLOv5_ONNX_CV:
                         int(row[3].item()), 
                         ratio, dwh)
                     boxes.append(box)
-        return self._nsm_boxes(ids, confs, boxes)
+        return self._nms_boxes(ids, confs, boxes)
 
     def _draw_box(self, img, label, box, color, line_width):
         lw = line_width or max(round(sum(img.shape) / 2 * 0.003), 2)
