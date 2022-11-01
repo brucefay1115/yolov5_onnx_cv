@@ -76,6 +76,7 @@ class YOLOv5_ONNX_CV:
         result = []
         indexes = cv2.dnn.NMSBoxes(boxes, confs, self.conf, self.iou) 
         for i in indexes:
+            i = int(i)
             id = ids[i]
             result.append(df.ClassInfo(id, self.class_names[id], confs[i], boxes[i]))
         return result
@@ -90,13 +91,13 @@ class YOLOv5_ONNX_CV:
                 scores = row[5:]
                 id = scores.argmax()
                 if (scores[id] >= self.conf):
-                    confs.append(conf)
-                    ids.append(id)
+                    confs.append(float(conf))
+                    ids.append(int(id))
                     box = self._xywh_to_box(
-                        row[0].item(), 
-                        row[1].item(), 
-                        row[2].item(), 
-                        row[3].item(), 
+                        int(row[0].item()), 
+                        int(row[1].item()), 
+                        int(row[2].item()), 
+                        int(row[3].item()), 
                         ratio, dwh)
                     boxes.append(box)
         return self._nsm_boxes(ids, confs, boxes)

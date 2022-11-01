@@ -5,13 +5,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yolov5_onnx_cv"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name="BruceYang", email="brucefay1115@gmail.com" },
 ]
 description = "YOLOv5 ONNX example by OpenCV DNN."
 readme = "README.md"
-license = { file="LICENSE" }
 requires-python = ">=3.6"
 dependencies = [
   'opencv-python >= 4.4.0.40',
